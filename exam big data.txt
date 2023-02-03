@@ -1,0 +1,51 @@
+
+1.failshi arsebul teqstshi davtvalot sityvebi ramdenjer gvxvdeba 
+import org.apache.spark.sql.execution.streaming.ProcessingTimeExecutor
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import org.apache.spark.sql.functions.{col, concat, current_timestamp,  from_json, lit, monotonically_increasing_id}
+import org.apache.spark.sql.streaming.Trigger.ProcessingTime
+import org.apache.spark.sql.types.{DateType, DoubleType, IntegerType, LongType, StringType, StructField, StructType}
+
+
+object Main {
+
+  val conf = new SparkConf()
+    .setAppName("POC")
+    .setMaster("local[2]")
+    .set("spark.sql.streaming.checkpointLocation", "checkpoint")
+
+
+  def main(args: Array[String]): Unit = {
+    val sc = new SparkContext(conf)
+
+    val spark = SparkSession.builder.config(sc.getConf).getOrCreate()
+
+    spark.sparkContext.setLogLevel("ERROR")
+
+    val schema = new StructType()
+      .add("Year", IntegerType, true)
+      .add("Name", StringType, true)
+      .add("Department", StringType, true)
+      .add("Country", StringType, true)
+      .add("Sal", LongType, true)
+
+
+
+    val myrdd = sc.textFile("D://KeyWords.txt") //Line 1
+-------------
+//txt ფაილის წაკითხვა:
+    val myrdd = sc.textFile("D://KeyWords.txt") //Line 1
+//json ფაილის წაკითხვა:
+    val bookDetails = spark.read.json("D://samplejson.json")
+//csv ფაილის წაკითხვა:
+    val bookDetails = spark.read.csv("D://addresses.csv")
+//    bookDetails.show()
+//    bookDetails.groupBy("Author").agg(sum("bookId")).show()
+--------------
+    val myArray=sc.textFile("d://KeyWords.txt").flatMap(line => line.split(" ")).
+      map(word => (word, 1)).reduceByKey(_ + _).collect()
+    myArray.foreach(println)
+    println("Hello world!")
+  }
+}
